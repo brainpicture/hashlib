@@ -10,10 +10,22 @@
 #include "lib/md6/md6_compress.c"
 #include "lib/md6/md6_mode.c"
 
-//
-
 #include <iostream>
 using namespace v8;
+
+// make digest from php
+static void
+make_digest_ex(unsigned char *md5str, unsigned char *digest, int len)
+{
+  static const char hexits[17] = "0123456789abcdef";
+  int i;
+
+  for (i = 0; i < len; i++) {
+    md5str[i * 2] = hexits[digest[i] >> 4];
+    md5str[(i * 2) + 1] = hexits[digest[i] &  0x0F];
+  }
+  md5str[len * 2] = '\0';
+}
 
 Handle<Value>
 sha1(const Arguments& args)
@@ -28,16 +40,8 @@ sha1(const Arguments& args)
   sha_init(sha);
   sha_update(sha, (unsigned char*) *data, data.length());
   sha_final(digest, sha);
-  char chr;
-  int i, j;
-  for(i=j=0; i<20; i++) {
-    chr = (digest[i] >> 4) & 0xf;
-    chr = (chr>9) ? chr+'a'-10 : chr + '0';
-    hexdigest[j++] = chr;
-    chr = (digest[i] & 0xf);
-    chr = (chr>9) ? chr+'a'-10 : chr + '0';
-    hexdigest[j++] = chr;
-  }
+
+  make_digest_ex(hexdigest, digest, 20);
 	     
   return String::New((char*)hexdigest,40);
 }
@@ -56,16 +60,8 @@ sha256(const Arguments& args)
   sha_init(sha);
   sha_update(sha, (unsigned char*) *data, data.length());
   sha_final(digest, sha);
-  char chr;
-  int i, j;
-  for(i=j=0; i<32; i++) {
-    chr = (digest[i] >> 4) & 0xf;
-    chr = (chr>9) ? chr+'a'-10 : chr + '0';
-    hexdigest[j++] = chr;
-    chr = (digest[i] & 0xf);
-    chr = (chr>9) ? chr+'a'-10 : chr + '0';
-    hexdigest[j++] = chr;
-  }
+
+  make_digest_ex(hexdigest, digest, 32);
 	     
   return String::New((char*)hexdigest,64);
 }
@@ -83,16 +79,8 @@ sha512(const Arguments& args)
   sha512_init(sha);
   sha512_update(sha, (unsigned char*) *data, data.length());
   sha512_final(digest, sha);
-  char chr;
-  int i, j;
-  for(i=j=0; i<64; i++) {
-    chr = (digest[i] >> 4) & 0xf;
-    chr = (chr>9) ? chr+'a'-10 : chr + '0';
-    hexdigest[j++] = chr;
-    chr = (digest[i] & 0xf);
-    chr = (chr>9) ? chr+'a'-10 : chr + '0';
-    hexdigest[j++] = chr;
-  }
+  
+  make_digest_ex(hexdigest, digest, 64);
 	     
   return String::New((char*)hexdigest,128);
 }
@@ -112,19 +100,11 @@ md6(const Arguments& args)
   unsigned char digest[len];
   unsigned char hexdigest[len];
   md6_hash(len*8, (unsigned char*) *data, data.length(), digest);
-  char chr;
-  int i, j;
+
   int half_len=len/2;
   if (len%2!=0) half_len++;
   
-  for(i=j=0; i<half_len; i++) {
-    chr = (digest[i] >> 4) & 0xf;
-    chr = (chr>9) ? chr+'a'-10 : chr + '0';
-    hexdigest[j++] = chr;
-    chr = (digest[i] & 0xf);
-    chr = (chr>9) ? chr+'a'-10 : chr + '0';
-    hexdigest[j++] = chr;
-  }
+  make_digest_ex(hexdigest, digest, half_len);
 	     
   return String::New((char*)hexdigest,len);
 }
@@ -145,16 +125,7 @@ md5(const Arguments& args)
   md5_append(&mdContext,(unsigned char*)*data,data.length());
   md5_finish(&mdContext, digest);
   
-  int i, j;
-  for(i=j=0; i<16; i++) {
-  	char chr;
-    chr = (digest[i] >> 4) & 0xf;
-    chr = (chr>9) ? chr+'a'-10 : chr + '0';
-    hexdigest[j++] = chr;
-    chr = (digest[i] & 0xf);
-    chr = (chr>9) ? chr+'a'-10 : chr + '0';
-    hexdigest[j++] = chr;
-  }
+  make_digest_ex(hexdigest, digest, 16);
   
   return String::New((char*)hexdigest,32);
 }
