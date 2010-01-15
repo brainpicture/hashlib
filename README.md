@@ -1,5 +1,5 @@
 # Hashlib
-*Is a FAST library for making hashes written in C/C++*
+*Is a FAST nodejs(http://github.com/ry/node/) library for making hashes written in C/C++*
 
 *Supports: md4, md5, md6, sha, sha1, sha256, sha512*
 
