@@ -1,5 +1,4 @@
 # Hashlib
-<img src="http://nodejs.ru/img/small.png" align="top">
 *Its an FAST library for making hashes, which written in C/C++*
 
 *Supports: md4, md5, md6, sha, sha1, sha256, sha512*
@@ -58,3 +57,5 @@ Other modules, engines md5 comparsion:
 	php: 179
 	
 	// Smaller is better
+
+<img src="http://nodejs.ru/img/small.png">
