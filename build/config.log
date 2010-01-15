@@ -1,4 +1,4 @@
-# project  configured on Thu Jan 14 23:21:13 2010 by
+# project  configured on Fri Jan 15 16:04:43 2010 by
 # waf 1.5.10 (abi 7, python 20604f0 on linux2)
 # using /usr/local/bin/node-waf configure build
 #
@@ -19,6 +19,12 @@ Checking for program ranlib
 find program=['ranlib'] paths=[] var='RANLIB' -> '/usr/bin/ranlib'
 
 Checking for g++ 
+
+Checking for program gcc,cc
+
+find program=['gcc', 'cc'] paths=[] var='CC' -> '/usr/bin/gcc'
+
+Checking for gcc 
 
 Checking for node prefix 
 

@@ -7,7 +7,9 @@ Its an library for making hashes
 	3) module will be here ./build/default/hashlib.node
 	
 ## Functions:
+	md4([sting] str); // Returns md4 hash from sting
 	md5([sting] str); // Returns md5 hash from sting
+	sha([sting] str); // Returns sha hash from sting
 	sha1([sting] str); // Returns sha1 hash from sting
 	sha256([sting] str); // Returns sha256 hash from sting
 	sha512([sting] str); // Returns sha512 hash from sting

@@ -1,7 +1,18 @@
 AR = '/usr/bin/ar'
 ARFLAGS = 'rcs'
+CC = ['/usr/bin/gcc']
+CCDEFINES_ST = '-D%s'
+CCFLAGS = ['-fstack-protector', '-O', '-g', '-march=native']
+CCFLAGS_DEBUG = ['-g']
 CCFLAGS_MACBUNDLE = ['-fPIC']
+CCFLAGS_RELEASE = ['-O2']
+CCLNK_SRC_F = ''
+CCLNK_TGT_F = ['-o', '']
+CC_NAME = 'gcc'
+CC_SRC_F = ''
+CC_TGT_F = ['-c', '-o', '']
 CC_VERSION = ('4', '4', '1')
+COMPILER_CC = 'gcc'
 COMPILER_CXX = 'g++'
 CPP = '/usr/bin/cpp'
 CPPFLAGS_NODE = '-DEV_MULTIPLICITY=0'
@@ -24,6 +35,7 @@ LIBPATH_NODE = '/usr/local/lib'
 LIBPATH_ST = '-L%s'
 LIB_ST = '-l%s'
 LINKFLAGS_MACBUNDLE = ['-bundle', '-undefined', 'dynamic_lookup']
+LINK_CC = ['/usr/bin/gcc']
 LINK_CXX = ['/usr/bin/g++']
 PREFIX = '/usr/local'
 PREFIX_NODE = '/usr/local'
@@ -36,6 +48,7 @@ STATICLIB_MARKER = '-Wl,-Bstatic'
 STATICLIB_ST = '-l%s'
 macbundle_PATTERN = '%s.bundle'
 program_PATTERN = '%s'
+shlib_CCFLAGS = ['-fPIC', '-DPIC']
 shlib_CXXFLAGS = ['-fPIC', '-DPIC']
 shlib_LINKFLAGS = ['-shared']
 shlib_PATTERN = 'lib%s.so'

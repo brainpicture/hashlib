@@ -1,6 +1,11 @@
 #include <v8.h>
 
-#include "lib/md5/md5.c"
+//#include "lib/md5/md5.c"
+extern "C" {
+#include "sha.h"
+#include "md4.h"
+#include "md5.h"
+}
 
 #include "lib/sha/shamodule.c"
 #include "lib/sha/sha256module.c"
@@ -25,6 +30,24 @@ make_digest_ex(unsigned char *md5str, unsigned char *digest, int len)
     md5str[(i * 2) + 1] = hexits[digest[i] &  0x0F];
   }
   md5str[len * 2] = '\0';
+}
+
+Handle<Value>
+sha(const Arguments& args)
+{
+  HandleScope scope;	
+  String::Utf8Value data(args[0]->ToString());
+  SHA_CTX ctx;
+  unsigned char digest[20];
+  unsigned char hexdigest[40];
+
+  SHA_Init(&ctx);
+  SHA_Update(&ctx, (unsigned char*)*data, data.length());
+  SHA_Final(digest, &ctx);
+
+  make_digest_ex(hexdigest, digest, 20);
+	     
+  return String::New((char*)hexdigest,40);
 }
 
 Handle<Value>
@@ -85,6 +108,45 @@ sha512(const Arguments& args)
   return String::New((char*)hexdigest,128);
 }
 
+Handle<Value>
+md4(const Arguments& args)
+{
+  HandleScope scope;
+  
+  String::Utf8Value data(args[0]->ToString());
+  MD4_CTX mdContext;
+  unsigned char digest[16];
+  unsigned char hexdigest[32];
+
+  /* make an hash */
+  MD4Init(&mdContext);
+  MD4Update(&mdContext, (unsigned char*)*data, data.length());
+  MD4Final(digest, &mdContext);
+  
+  make_digest_ex(hexdigest, digest, 16);
+  
+  return String::New((char*)hexdigest,32);
+}
+
+Handle<Value>
+md5(const Arguments& args)
+{
+  HandleScope scope;
+  
+  String::Utf8Value data(args[0]->ToString());
+  MD5_CTX mdContext;
+  unsigned char digest[16];
+  unsigned char hexdigest[32];
+
+  /* make an hash */
+  MD5Init(&mdContext);
+  MD5Update(&mdContext, (unsigned char*)*data, data.length());
+  MD5Final(digest, &mdContext);
+  
+  make_digest_ex(hexdigest, digest, 16);
+  
+  return String::New((char*)hexdigest,32);
+}
 
 Handle<Value>
 md6(const Arguments& args)
@@ -109,33 +171,13 @@ md6(const Arguments& args)
   return String::New((char*)hexdigest,len);
 }
 
-
-Handle<Value>
-md5(const Arguments& args)
-{
-  HandleScope scope;
-  
-  String::Utf8Value data(args[0]->ToString());
-  md5_state_t mdContext;
-  unsigned char digest[16];
-  unsigned char hexdigest[32];
-
-  /* make an hash */
-  md5_init(&mdContext);
-  md5_append(&mdContext,(unsigned char*)*data,data.length());
-  md5_finish(&mdContext, digest);
-  
-  make_digest_ex(hexdigest, digest, 16);
-  
-  return String::New((char*)hexdigest,32);
-}
-
 extern "C" void init (Handle<Object> target)
 {
   HandleScope scope;
+  target->Set(String::New("md4"), FunctionTemplate::New(md4)->GetFunction());
   target->Set(String::New("md5"), FunctionTemplate::New(md5)->GetFunction());
   target->Set(String::New("md6"), FunctionTemplate::New(md6)->GetFunction());
-  target->Set(String::New("sha"), FunctionTemplate::New(sha1)->GetFunction());
+  target->Set(String::New("sha"), FunctionTemplate::New(sha)->GetFunction());
   target->Set(String::New("sha1"), FunctionTemplate::New(sha1)->GetFunction());
   target->Set(String::New("sha256"), FunctionTemplate::New(sha256)->GetFunction());
   target->Set(String::New("sha512"), FunctionTemplate::New(sha512)->GetFunction());

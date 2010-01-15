@@ -1,6 +1,7 @@
 var hashlib = require("./build/default/hashlib");
 var sys = require("sys");
 var md5 = require("./test/md5");
+
 if (hashlib.md5('test')=='098f6bcd4621d373cade4e832627b4f6')
 	sys.puts('test 1 PASSED');
 else
@@ -25,6 +26,14 @@ if (hashlib.md6('test',40)=='27ea128154b4934ae2bd7f9dac53cf81da0002cc')
 	sys.puts('test 6 PASSED');
 else
 	sys.puts('test 6 FAILS');
+if (hashlib.md4('test')=='db346d691d7acc4dc2625db19f9e3f52')
+	sys.puts('test 7 PASSED');
+else
+	sys.puts('test 7 FAILS');
+if (hashlib.sha('test')=='f8d3b312442a67706057aeb45b983221afb4f035')
+	sys.puts('test 8 PASSED');
+else
+	sys.puts('test 8 FAILS');
 
 // C++ md5
 var m1=new Date().getTime();
@@ -47,6 +56,15 @@ if (c<js) sys.puts('C++ module faster than JS in '+(js/c)+' times');
 else if (c>js) sys.puts('JS module faster than C++ in '+(c/j)+' times');
 sys.puts('-----------');
 
+// C++ md4
+var m1=new Date().getTime();
+for(i=0;i<100000;i++) {
+	h=hashlib.md4('EdPy2H71Q1MjTzkuRxAr1CJWs2ZapZEuaY3XwJL8mpxaTBLWZPkw1yakKLv2r79eHmNQ1m2Cc6PErAkH5FR3Nmd011F09LCas76Z'+String(i));
+}
+var m2=new Date().getTime();
+var c=m2-m1;
+sys.puts('C++ md4 result is: '+(c));
+
 // C++ md6
 var m1=new Date().getTime();
 for(i=0;i<100000;i++) {
@@ -55,6 +73,15 @@ for(i=0;i<100000;i++) {
 var m2=new Date().getTime();
 var c=m2-m1;
 sys.puts('C++ md6 result is: '+(c));
+
+// C++ sha0
+var m1=new Date().getTime();
+for(i=0;i<100000;i++) {
+	h=hashlib.sha('EdPy2H71Q1MjTzkuRxAr1CJWs2ZapZEuaY3XwJL8mpxaTBLWZPkw1yakKLv2r79eHmNQ1m2Cc6PErAkH5FR3Nmd011F09LCas76Z'+String(i));
+}
+var m2=new Date().getTime();
+var c=m2-m1;
+sys.puts('C++ sha0 result is: '+(c));
 
 // C++ sha1
 var m1=new Date().getTime();
