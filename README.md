@@ -1,25 +1,28 @@
 # Hashlib
+[<img src="http://nodejs.ru/img/small.png">]
+
 *Its an FAST library for making hashes, which written in C/C++*
+
 *Supports: md4, md5, md6, sha, sha1, sha256, sha512*
 
 ## Install:
 ### way 1
-1) go to the directory whith this library
+1) go to the directory whith hashlib library
 
 2) execute `node-waf configure build`
 
 3) get module from `./build/default/hashlib.node`
 
-You should use `var hashlib = require("./build/default/hashlib");` way to module
+You should use `var hashlib = require("./build/default/hashlib");` (way to module)
 
 ### way 2 (works if node are installed in default)
 1) go to the directory whith this library
 
 2) execute `make`
 
-2) execute `sudo make install`
+3) execute `sudo make install`
 
-You should use `var hashlib = require("hashlib");` from any path
+You should use `var hashlib = require("hashlib");` (from any path)
 
 ## Functions:
 	md4([sting] str); // Returns md4 hash from sting
