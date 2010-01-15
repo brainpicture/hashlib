@@ -2,10 +2,20 @@
 Its an library for making hashes
 
 ## Install:
-	1) go to the directory whith this library
-	2) make: node-waf configure build
-	3) module will be here ./build/default/hashlib.node
-	
+### way 1
+1) go to the directory whith this library
+2) execute `node-waf configure build`
+3) get module from `./build/default/hashlib.node`
+
+You should use `var hashlib = require("./build/default/hashlib");` way to module
+
+### way 2 (works if node are installed in default)
+1) go to the directory whith this library
+2) execute `make`
+2) execute `sudo make install`
+
+You should use `var hashlib = require("hashlib");` from any path
+
 ## Functions:
 	md4([sting] str); // Returns md4 hash from sting
 	md5([sting] str); // Returns md5 hash from sting
@@ -15,6 +25,29 @@ Its an library for making hashes
 	sha512([sting] str); // Returns sha512 hash from sting
 	md6([sting] str, [int] length); // Returns md6 hash from sting, second parametr is optional
 	
-## Using:
+## Usage:
 	var hashlib = require("__path_to_hashlib_module__/hashlib");
 	hashlib.md5('text');
+	
+## Speed testing
+To run speed test on your computer run test.js, here is my:
+	C++ md5 result is: 220
+	JS md5 result is: 5660
+	C++ module faster than JS in 25.727272727272727 times
+	-----------
+	C++ md4 result is: 212
+	C++ md6 result is: 3889
+	C++ sha0 result is: 228
+	C++ sha1 result is: 495
+	C++ sha256 result is: 712
+	C++ sha512 result is: 612
+	
+	// Smaller is better
+
+Other modules, engines md5 comparsion:
+	hashlib: 220
+	node-crypto: 1055
+	python-hashlib: 265
+	php: 179
+	
+	// Smaller is better
