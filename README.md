@@ -1,5 +1,5 @@
 # Hashlib
-[<img src="http://nodejs.ru/img/small.png">]
+<img src="http://nodejs.ru/img/small.png" align="left">
 
 *Its an FAST library for making hashes, which written in C/C++*
 
