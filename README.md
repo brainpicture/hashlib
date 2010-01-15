@@ -1,17 +1,22 @@
 # Hashlib
-Its an library for making hashes
+*Its an FAST library for making hashes, which written in C/C++*
+*Supports: md4, md5, md6, sha, sha1, sha256, sha512*
 
 ## Install:
 ### way 1
 1) go to the directory whith this library
+
 2) execute `node-waf configure build`
+
 3) get module from `./build/default/hashlib.node`
 
 You should use `var hashlib = require("./build/default/hashlib");` way to module
 
 ### way 2 (works if node are installed in default)
 1) go to the directory whith this library
+
 2) execute `make`
+
 2) execute `sudo make install`
 
 You should use `var hashlib = require("hashlib");` from any path
@@ -26,7 +31,7 @@ You should use `var hashlib = require("hashlib");` from any path
 	md6([sting] str, [int] length); // Returns md6 hash from sting, second parametr is optional
 	
 ## Usage:
-	var hashlib = require("__path_to_hashlib_module__/hashlib");
+	var hashlib = require('hashlib');
 	hashlib.md5('text');
 	
 ## Speed testing
