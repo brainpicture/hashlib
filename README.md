@@ -13,7 +13,7 @@
 
 You should use `var hashlib = require("./build/default/hashlib");` (way to module)
 
-### way 2 (works if node are installed in default)
+### way 2 (works if node are installed in default path)
 1) go to the directory whith this library
 
 2) execute `make`
