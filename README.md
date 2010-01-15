@@ -3,7 +3,7 @@
 
 *Supports: md4, md5, md6, sha, sha1, sha256, sha512*
 
-* *Thangs Vanilla Hsu for speed improvements and md4, sha support*
+* *Thangs to Vanilla Hsu for speed improvements and md4, sha support*
 
 ## Install:
 ### way 1
