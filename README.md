@@ -25,13 +25,14 @@ You should use `var hashlib = require("./build/default/hashlib");` (way to modul
 You should use `var hashlib = require("hashlib");` (from any path)
 
 ## Functions:
-	md4([sting] str); // Returns md4 hash from sting
-	md5([sting] str); // Returns md5 hash from sting
-	sha([sting] str); // Returns sha hash from sting
-	sha1([sting] str); // Returns sha1 hash from sting
-	sha256([sting] str); // Returns sha256 hash from sting
-	sha512([sting] str); // Returns sha512 hash from sting
-	md6([sting] str, [int] length); // Returns md6 hash from sting, second parametr is optional
+	md4(str); // Returns md4 hash from sting
+	md5(str); // Returns md5 hash from sting
+	sha(str); // Returns sha hash from sting
+	sha1(str); // Returns sha1 hash from sting
+	sha256(str); // Returns sha256 hash from sting
+	sha512(str); // Returns sha512 hash from sting
+	md6(str[, length]); // Returns md6 hash from sting, second parametr is optional
+	md5_file(path); // Returns md5 hash from file (callbacks will be soon)
 	
 ## Usage:
 	var hashlib = require('hashlib');

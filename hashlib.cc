@@ -1,6 +1,5 @@
 #include <v8.h>
 
-//#include "lib/md5/md5.c"
 extern "C" {
 #include "sha.h"
 #include "md4.h"
@@ -16,6 +15,7 @@ extern "C" {
 #include "lib/md6/md6_mode.c"
 
 #include <iostream>
+#include <stdio.h>
 using namespace v8;
 
 // make digest from php
@@ -171,6 +171,44 @@ md6(const Arguments& args)
   return String::New((char*)hexdigest,len);
 }
 
+Handle<Value> get_md5_file(char * path)
+{
+  FILE *inFile = fopen (path, "rb");
+  MD5_CTX mdContext;
+  unsigned char digest[16];
+  unsigned char hexdigest[32];
+  int bytes;
+  unsigned char data[1024];
+
+  if (inFile == NULL) {
+    std::string s="Cannot read ";
+    s+=path;
+    return ThrowException(Exception::Error(String::New(s.c_str())));
+  }
+
+  MD5Init (&mdContext);
+  while ((bytes = fread (data, 1, 1024, inFile)) != 0)
+    MD5Update (&mdContext, data, bytes);
+  MD5Final (digest, &mdContext);
+  make_digest_ex(hexdigest, digest, 16);
+  fclose (inFile);
+  return String::New((char*)hexdigest,32);
+}
+
+Handle<Value>
+md5_file(const Arguments& args)
+{
+  HandleScope scope;
+  
+  String::Utf8Value path(args[0]->ToString());
+  if (args[1]->IsFunction()) {
+    printf("callback's for md5_file not implemented yet");
+  	return get_md5_file(*path);
+  } else {
+  	return get_md5_file(*path);
+  }
+}
+
 extern "C" void init (Handle<Object> target)
 {
   HandleScope scope;
@@ -181,4 +219,6 @@ extern "C" void init (Handle<Object> target)
   target->Set(String::New("sha1"), FunctionTemplate::New(sha1)->GetFunction());
   target->Set(String::New("sha256"), FunctionTemplate::New(sha256)->GetFunction());
   target->Set(String::New("sha512"), FunctionTemplate::New(sha512)->GetFunction());
+  
+  target->Set(String::New("md5_file"), FunctionTemplate::New(md5_file)->GetFunction());
 }
