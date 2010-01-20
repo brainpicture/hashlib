@@ -2,6 +2,8 @@ var hashlib = require("./build/default/hashlib");
 var sys = require("sys");
 var md5 = require("./test/md5");
 
+process.chdir(require("path").dirname(process.ARGV[1]));
+
 if (hashlib.md5('test')=='098f6bcd4621d373cade4e832627b4f6')
 	sys.puts('test 1 PASSED');
 else
@@ -34,6 +36,17 @@ if (hashlib.sha('test')=='f8d3b312442a67706057aeb45b983221afb4f035')
 	sys.puts('test 8 PASSED');
 else
 	sys.puts('test 8 FAILS');
+if (hashlib.md5_file('./test.file')=='bc8aeda5b02f054117bd9979908787dc')
+	sys.puts('test 9 PASSED');
+else
+	sys.puts('test 9 FAILS');
+hashlib.md5_file('./test.file',function(value) {
+  if (value=='bc8aeda5b02f054117bd9979908787dc')
+    sys.puts('test 10 PASSED');
+  else
+    sys.puts('test 10 FAILS');
+
+// End of tests
 
 // C++ md5
 var m1=new Date().getTime();
@@ -109,3 +122,5 @@ for(i=0;i<100000;i++) {
 var m2=new Date().getTime();
 var c=m2-m1;
 sys.puts('C++ sha512 result is: '+(c));
+
+});

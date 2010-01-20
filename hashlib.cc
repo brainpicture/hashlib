@@ -1,4 +1,5 @@
 #include <v8.h>
+#include <ev.h>
 
 extern "C" {
 #include "sha.h"
@@ -195,6 +196,18 @@ Handle<Value> get_md5_file(char * path)
   return String::New((char*)hexdigest,32);
 }
 
+void md5_file_callback(int revents, void *args) {
+  Persistent<Object> *data =
+    reinterpret_cast<Persistent<Object>*>(args);
+  
+  String::Utf8Value path((*data)->Get(String::New("path")));
+  v8::Handle<v8::Function> callback = v8::Handle<v8::Function>::Cast((*data)->Get(String::New("callback")));
+  Handle<Object> recv = Handle<Object>::Cast((*data)->Get(String::New("recv")));
+  v8::Handle<v8::Value> outArgs[] = {get_md5_file(*path)};
+  callback->Call(recv, 1, outArgs);
+  data->Dispose();
+}
+
 Handle<Value>
 md5_file(const Arguments& args)
 {
@@ -202,8 +215,16 @@ md5_file(const Arguments& args)
   
   String::Utf8Value path(args[0]->ToString());
   if (args[1]->IsFunction()) {
-    printf("callback's for md5_file not implemented yet");
-  	return get_md5_file(*path);
+	  v8::Local<v8::Object> arguments = v8::Object::New();
+	  arguments->Set(String::New("path"),args[0]->ToString());
+	  arguments->Set(String::New("callback"),args[1]);
+	  arguments->Set(String::New("recv"),args.This());
+	  Persistent<Object> *data = new Persistent<Object>();
+    *data = Persistent<Object>::New(arguments);
+    
+    ev_once(0, EV_TIMEOUT, 0, md5_file_callback, (void*)data);
+    
+  	return v8::Boolean::New(true);
   } else {
   	return get_md5_file(*path);
   }
