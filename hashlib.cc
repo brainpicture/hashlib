@@ -1,3 +1,12 @@
+/**
+ * FAST nodejs(http://github.com/ry/node/) library for making hashes
+ *
+ * @package hashlib
+ * @link http://github.com/brainfucker/hashlib
+ * @autor Oleg Illarionov <oleg@emby.ru>
+ * @version 1.0
+ */
+ 
 #include <v8.h>
 #include <ev.h>
 
@@ -174,6 +183,7 @@ md6(const Arguments& args)
 
 Handle<Value> get_md5_file(char * path)
 {
+  Unlocker unlock;
   FILE *inFile = fopen (path, "rb");
   MD5_CTX mdContext;
   unsigned char digest[16];
@@ -184,6 +194,7 @@ Handle<Value> get_md5_file(char * path)
   if (inFile == NULL) {
     std::string s="Cannot read ";
     s+=path;
+    Locker lock;
     return ThrowException(Exception::Error(String::New(s.c_str())));
   }
 
@@ -193,6 +204,7 @@ Handle<Value> get_md5_file(char * path)
   MD5Final (digest, &mdContext);
   make_digest_ex(hexdigest, digest, 16);
   fclose (inFile);
+  Locker lock;
   return String::New((char*)hexdigest,32);
 }
 
