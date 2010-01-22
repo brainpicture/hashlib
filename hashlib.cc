@@ -34,7 +34,6 @@ class file_data {
 	int fd;
 	int byte;
 	MD5_CTX mdContext;
-	bool first;
 	void* environment;
 };
 
@@ -193,24 +192,16 @@ md6(const Arguments& args)
 	     
   return String::New((char*)hexdigest,len);
 }
-
 int read_cb (eio_req *req)
 {
   file_data *fd=(file_data *)req->data;
   unsigned char *buf = (unsigned char *)EIO_BUF (req);
   int bytes=(int)EIO_RESULT(req);
   MD5Update (&fd->mdContext, buf, bytes);
-  if (fd->first) {
-  	fd->first=false;
-  	if (bytes==0) {
-        Persistent<Object> *data = reinterpret_cast<Persistent<Object>*>(fd->environment);
-        ThrowException((*data)->Get(String::New("error")));
-  	}
-  }
-  if (bytes==1024) {
+  if (bytes==10240) {
   	// Read next block
   	fd->byte+=bytes;
-  	eio_read(fd->fd, 0, 1024, fd->byte, EIO_PRI_DEFAULT, read_cb, static_cast<void*>(fd));
+  	eio_read(fd->fd, 0, 10240, fd->byte, EIO_PRI_DEFAULT, read_cb, static_cast<void*>(fd));
   } else {
   	// Final
   	unsigned char digest[16];
@@ -225,6 +216,7 @@ int read_cb (eio_req *req)
     v8::Handle<v8::Value> outArgs[] = {String::New((char *)hexdigest,32)};
     callback->Call(recv, 1, outArgs);
     data->Dispose();
+    eio_close(fd->fd, 0, 0, (void*)"close");
     ev_unref(EV_DEFAULT_UC);
   }
 
@@ -237,14 +229,14 @@ int open_cb (eio_req *req)
     
   fd->fd = EIO_RESULT (req);
   void* data = static_cast<void*>(fd);
-  eio_read (fd->fd, 0, 1024, fd->byte, EIO_PRI_DEFAULT, read_cb, (void*)data);
+  eio_read (fd->fd, 0, 10240, fd->byte, EIO_PRI_DEFAULT, read_cb, (void*)data);
   
   return 0;
 }
 
 Handle<Value> get_md5_file_async(char * path, void* data)
 {
-  eio_open (path, O_RDWR | O_CREAT, 0777, 0, open_cb, data);
+  eio_open (path, O_RDONLY, 0777, 0, open_cb, data);
   return v8::Boolean::New(true);
 }
 
@@ -256,7 +248,7 @@ Handle<Value> get_md5_file(char * path)
   unsigned char digest[16];
   unsigned char hexdigest[32];
   int bytes;
-  unsigned char data[1024];
+  unsigned char data[10240];
 
   if (inFile == NULL) {
     std::string s="Cannot read ";
@@ -266,7 +258,7 @@ Handle<Value> get_md5_file(char * path)
   }
 
   MD5Init (&mdContext);
-  while ((bytes = fread (data, 1, 1024, inFile)) != 0)
+  while ((bytes = fread (data, 1, 10240, inFile)) != 0)
     MD5Update (&mdContext, data, bytes);
   MD5Final (digest, &mdContext);
   make_digest_ex(hexdigest, digest, 16);
@@ -279,29 +271,33 @@ Handle<Value>
 md5_file(const Arguments& args)
 {
   HandleScope scope;
-  
+  struct stat stFileInfo;
   String::Utf8Value path(args[0]->ToString());
-  if (args[1]->IsFunction()) {
-	v8::Local<v8::Object> arguments = v8::Object::New();
-	arguments->Set(String::New("path"),args[0]->ToString());
-	arguments->Set(String::New("callback"),args[1]);
-	arguments->Set(String::New("recv"),args.This());
-	std::string s="Cannot read ";
-    s+=*path;
-	arguments->Set(String::New("error"),Exception::Error(String::New(s.c_str())));
-	Persistent<Object> *data = new Persistent<Object>();
-    *data = Persistent<Object>::New(arguments);
+  char* cpath=*path;
+  int intStat = stat(cpath,&stFileInfo); 
+  if (intStat == 0) {
+    if (args[1]->IsFunction()) {
+	  v8::Local<v8::Object> arguments = v8::Object::New();
+	  arguments->Set(String::New("path"),args[0]->ToString());
+	  arguments->Set(String::New("callback"),args[1]);
+	  arguments->Set(String::New("recv"),args.This());
+	  Persistent<Object> *data = new Persistent<Object>();
+	  *data = Persistent<Object>::New(arguments);
 
-  	file_data *fd=new file_data;
-    fd->byte = 0;
-    fd->first = true;
-    fd->environment = data;
-    
-    MD5Init(&fd->mdContext);
-    ev_ref(EV_DEFAULT_UC);
-  	return get_md5_file_async(*path,static_cast<void*>(fd));
+    file_data *fd=new file_data;
+	  fd->byte = 0;
+	  fd->environment = data;
+	
+	  MD5Init(&fd->mdContext);
+	  ev_ref(EV_DEFAULT_UC);
+    	return get_md5_file_async(cpath,static_cast<void*>(fd));
+    } else {
+    	return get_md5_file(cpath);
+    }
   } else {
-  	return get_md5_file(*path);
+    std::string s="Cannot read ";
+    s+=cpath;
+    return ThrowException(Exception::Error(String::New(s.c_str())));
   }
 }
 
