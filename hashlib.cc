@@ -9,6 +9,8 @@
  
 #include <v8.h>
 #include <ev.h>
+#include <eio.h>
+#include <fcntl.h>
 
 extern "C" {
 #include "sha.h"
@@ -26,6 +28,17 @@ extern "C" {
 
 #include <iostream>
 #include <stdio.h>
+
+class file_data {
+  public:
+	int fd;
+	int byte;
+	MD5_CTX mdContext;
+	bool first;
+	void* environment;
+};
+
+
 using namespace v8;
 
 // make digest from php
@@ -181,6 +194,60 @@ md6(const Arguments& args)
   return String::New((char*)hexdigest,len);
 }
 
+int read_cb (eio_req *req)
+{
+  file_data *fd=(file_data *)req->data;
+  unsigned char *buf = (unsigned char *)EIO_BUF (req);
+  int bytes=(int)EIO_RESULT(req);
+  MD5Update (&fd->mdContext, buf, bytes);
+  if (fd->first) {
+  	fd->first=false;
+  	if (bytes==0) {
+        Persistent<Object> *data = reinterpret_cast<Persistent<Object>*>(fd->environment);
+        ThrowException((*data)->Get(String::New("error")));
+  	}
+  }
+  if (bytes==1024) {
+  	// Read next block
+  	fd->byte+=bytes;
+  	eio_read(fd->fd, 0, 1024, fd->byte, EIO_PRI_DEFAULT, read_cb, static_cast<void*>(fd));
+  } else {
+  	// Final
+  	unsigned char digest[16];
+  	unsigned char hexdigest[32];
+  	MD5Final(digest, &fd->mdContext);
+  	make_digest_ex(hexdigest, digest, 16);
+  	
+  	Persistent<Object> *data = reinterpret_cast<Persistent<Object>*>(fd->environment);
+  
+    v8::Handle<v8::Function> callback = v8::Handle<v8::Function>::Cast((*data)->Get(String::New("callback")));
+    Handle<Object> recv = Handle<Object>::Cast((*data)->Get(String::New("recv")));
+    v8::Handle<v8::Value> outArgs[] = {String::New((char *)hexdigest,32)};
+    callback->Call(recv, 1, outArgs);
+    data->Dispose();
+    ev_unref(EV_DEFAULT_UC);
+  }
+
+  return 0;
+}
+
+int open_cb (eio_req *req)
+{
+  file_data *fd=(file_data *)req->data;
+    
+  fd->fd = EIO_RESULT (req);
+  void* data = static_cast<void*>(fd);
+  eio_read (fd->fd, 0, 1024, fd->byte, EIO_PRI_DEFAULT, read_cb, (void*)data);
+  
+  return 0;
+}
+
+Handle<Value> get_md5_file_async(char * path, void* data)
+{
+  eio_open (path, O_RDWR | O_CREAT, 0777, 0, open_cb, data);
+  return v8::Boolean::New(true);
+}
+
 Handle<Value> get_md5_file(char * path)
 {
   Unlocker unlock;
@@ -208,18 +275,6 @@ Handle<Value> get_md5_file(char * path)
   return String::New((char*)hexdigest,32);
 }
 
-void md5_file_callback(int revents, void *args) {
-  Persistent<Object> *data =
-    reinterpret_cast<Persistent<Object>*>(args);
-  
-  String::Utf8Value path((*data)->Get(String::New("path")));
-  v8::Handle<v8::Function> callback = v8::Handle<v8::Function>::Cast((*data)->Get(String::New("callback")));
-  Handle<Object> recv = Handle<Object>::Cast((*data)->Get(String::New("recv")));
-  v8::Handle<v8::Value> outArgs[] = {get_md5_file(*path)};
-  callback->Call(recv, 1, outArgs);
-  data->Dispose();
-}
-
 Handle<Value>
 md5_file(const Arguments& args)
 {
@@ -231,12 +286,20 @@ md5_file(const Arguments& args)
 	arguments->Set(String::New("path"),args[0]->ToString());
 	arguments->Set(String::New("callback"),args[1]);
 	arguments->Set(String::New("recv"),args.This());
+	std::string s="Cannot read ";
+    s+=*path;
+	arguments->Set(String::New("error"),Exception::Error(String::New(s.c_str())));
 	Persistent<Object> *data = new Persistent<Object>();
     *data = Persistent<Object>::New(arguments);
+
+  	file_data *fd=new file_data;
+    fd->byte = 0;
+    fd->first = true;
+    fd->environment = data;
     
-    ev_once(0, EV_TIMEOUT, 0, md5_file_callback, (void*)data);
-    
-  	return v8::Boolean::New(true);
+    MD5Init(&fd->mdContext);
+    ev_ref(EV_DEFAULT_UC);
+  	return get_md5_file_async(*path,static_cast<void*>(fd));
   } else {
   	return get_md5_file(*path);
   }
