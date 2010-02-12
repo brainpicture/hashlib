@@ -1,7 +1,7 @@
 <?php
 $m1=microtime();
 for($i=0;$i<100000;$i++) {
-	$h=sha1('EdPy2H71Q1MjTzkuRxAr1CJWs2ZapZEuaY3XwJL8mpxaTBLWZPkw1yakKLv2r79eHmNQ1m2Cc6PErAkH5FR3Nmd011F09LCas76Z'.$i);
+	$h=md5('EdPy2H71Q1MjTzkuRxAr1CJWs2ZapZEuaY3XwJL8mpxaTBLWZPkw1yakKLv2r79eHmNQ1m2Cc6PErAkH5FR3Nmd011F09LCas76Z'.$i);
 }
 $m2=microtime();
 

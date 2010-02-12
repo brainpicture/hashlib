@@ -10,8 +10,8 @@ def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("compiler_cc")
   conf.check_tool("node_addon")
-  #conf.check(lib="md", uselib_store="MD")
-  conf.env.append_value('CCFLAGS', ['-fstack-protector', '-O', '-g', '-march=native'])
+  #conf.env.append_value('CCFLAGS', ['-fstack-protector', '-O', '-g', '-march=native'])
+  conf.env.append_value('CCFLAGS', ['-O3'])
 
 def build(bld):
   libhash = bld.new_task_gen("cc", "shlib")
@@ -22,7 +22,6 @@ def build(bld):
   libhash.includes = "libhash/"
   libhash.name = "libhash"
   libhash.target = "libhash"
-  libhash.install_path = None
 
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
   obj.target = "hashlib"
