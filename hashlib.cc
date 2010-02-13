@@ -18,6 +18,9 @@ extern "C" {
 #include "md5.h"
 }
 
+#include "lib/sha/HMAC_SHA1.cpp"
+#include "lib/sha/SHA1.cpp"
+
 #include "lib/sha/shamodule.c"
 #include "lib/sha/sha256module.c"
 #include "lib/sha/sha512module.c"
@@ -89,6 +92,37 @@ sha1(const Arguments& args)
   make_digest_ex(hexdigest, digest, 20);
 	     
   return String::New((char*)hexdigest,40);
+}
+
+Handle<Value>
+hmac_sha1(const Arguments& args)
+{
+  HandleScope scope;	
+  using namespace sha1module;
+  String::Utf8Value data(args[1]->ToString());
+  String::Utf8Value ckey(args[0]->ToString());
+  //unsigned char digest[40];
+  //unsigned char hexdigest[40];
+  
+  //BYTE Key[20];
+  //strcpy(Key,*ckey);
+  BYTE digest[20];
+  
+  //memset(Key, 20, 0x0b) ;
+  CHMAC_SHA1 HMAC_SHA1 ;
+  //HMAC_SHA1.HMAC_SHA1((BYTE*)*data, strlen(*data), Key, sizeof(Key), digest);
+  HMAC_SHA1.HMAC_SHA1((BYTE*)*data, strlen(*data), (BYTE*)*ckey, strlen(*ckey), digest);
+  
+  
+  //SHAobject *sha;
+  //sha=new SHAobject;
+  //sha_init(sha);
+  //sha_update(sha, (unsigned char*) *data, data.length());
+  //sha_final(digest, sha);
+
+  //make_digest_ex(hexdigest, digest, 20);
+	     
+  return String::New((char*)digest,20);
 }
 
 
@@ -309,6 +343,7 @@ extern "C" void init (Handle<Object> target)
   target->Set(String::New("md6"), FunctionTemplate::New(md6)->GetFunction());
   target->Set(String::New("sha"), FunctionTemplate::New(sha)->GetFunction());
   target->Set(String::New("sha1"), FunctionTemplate::New(sha1)->GetFunction());
+  target->Set(String::New("hmac_sha1"), FunctionTemplate::New(hmac_sha1)->GetFunction());
   target->Set(String::New("sha256"), FunctionTemplate::New(sha256)->GetFunction());
   target->Set(String::New("sha512"), FunctionTemplate::New(sha512)->GetFunction());
   

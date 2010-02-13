@@ -4,6 +4,7 @@ var md5 = require("./test/md5");
 
 process.chdir(__dirname);
 
+
 if (hashlib.md5('test')=='098f6bcd4621d373cade4e832627b4f6')
 	sys.puts('test 1 PASSED');
 else
