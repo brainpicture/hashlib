@@ -1,6 +1,5 @@
 all:
 	node-waf configure build
-	@echo "--------\nMODULE FILE SHOULD BE IN ./build/default/\nUSE 'sudo make install' to install it\nAlso you can use 'make tests' to run tests"
 tests:
 	node ./test.js
 install:
