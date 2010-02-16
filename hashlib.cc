@@ -18,9 +18,6 @@ extern "C" {
 #include "md5.h"
 }
 
-#include "lib/sha/HMAC_SHA1.cpp"
-#include "lib/sha/SHA1.cpp"
-
 #include "lib/sha/shamodule.c"
 #include "lib/sha/sha256module.c"
 #include "lib/sha/sha512module.c"
@@ -97,32 +94,58 @@ sha1(const Arguments& args)
 Handle<Value>
 hmac_sha1(const Arguments& args)
 {
-  HandleScope scope;	
-  using namespace sha1module;
-  String::Utf8Value data(args[1]->ToString());
-  String::Utf8Value ckey(args[0]->ToString());
-  //unsigned char digest[40];
-  //unsigned char hexdigest[40];
-  
-  //BYTE Key[20];
-  //strcpy(Key,*ckey);
-  BYTE digest[20];
-  
-  //memset(Key, 20, 0x0b) ;
-  CHMAC_SHA1 HMAC_SHA1 ;
-  //HMAC_SHA1.HMAC_SHA1((BYTE*)*data, strlen(*data), Key, sizeof(Key), digest);
-  HMAC_SHA1.HMAC_SHA1((BYTE*)*data, strlen(*data), (BYTE*)*ckey, strlen(*ckey), digest);
-  
-  
-  //SHAobject *sha;
-  //sha=new SHAobject;
-  //sha_init(sha);
-  //sha_update(sha, (unsigned char*) *data, data.length());
-  //sha_final(digest, sha);
-
-  //make_digest_ex(hexdigest, digest, 20);
-	     
-  return String::New((char*)digest,20);
+	HandleScope scope;
+ 
+	using namespace sha1module;
+	String::Utf8Value data(args[0]->ToString());
+	String::Utf8Value key_input(args[1]->ToString());
+ 
+	unsigned char digest[40];
+	unsigned char hexdigest[40];
+	unsigned int i;
+ 
+	const void *key = (unsigned char*) *key_input;
+	size_t keylen   =  key_input.length();
+ 
+	char ipad[64], opad[64];
+ 
+	if(keylen > 64)
+	{
+		char optkeybuf[20];
+		SHAobject *keyhash;
+		keyhash = new SHAobject;
+		sha_init(keyhash);
+		sha_update(keyhash, (unsigned char*) key, keylen);
+		sha_final((unsigned char*) optkeybuf, keyhash);
+		keylen = 20;
+		key = optkeybuf;
+	}
+ 
+	memcpy(ipad, key, keylen);
+	memcpy(opad, key, keylen);
+	memset(ipad+keylen, 0, 64 - keylen);
+	memset(opad+keylen, 0, 64 - keylen);
+ 
+	for (i = 0; i < 64; i++) 
+	{
+		ipad[i] ^= 0x36;
+		opad[i] ^= 0x5c;
+	}
+ 
+	SHAobject *context;
+	context = new SHAobject;
+	sha_init(context);
+	sha_update(context, (unsigned char*) ipad, 64);
+	sha_update(context, (unsigned char*)*data, data.length());
+	sha_final(digest, context);
+ 
+	sha_init(context);
+	sha_update(context, (unsigned char*) opad, 64);
+	sha_update(context, digest, 20);
+	sha_final(digest, context);
+ 
+	make_digest_ex(hexdigest, digest, 20);
+	return String::New((char*)hexdigest,40);
 }
 
 
@@ -226,6 +249,7 @@ md6(const Arguments& args)
 	     
   return String::New((char*)hexdigest,len);
 }
+
 int read_cb (eio_req *req)
 {
   file_data *fd=(file_data *)req->data;
