@@ -1,7 +1,7 @@
 # Hashlib
 *Is a FAST nodejs(http://github.com/ry/node/) library for making hashes written in C/C++*
 
-*Supports: md4, md5, md6, sha, sha1, sha256, sha512*, also can make md5 hash of files
+*Supports: md4, md5, md6, sha, sha1, sha256, sha512, hmac_sha1, hmac_md5*, also can make md5 hash of files
 
 *Thangs to Vanilla Hsu for speed improvements and md4, sha support*
 
@@ -33,6 +33,8 @@ You should use `var hashlib = require("hashlib");` (from any path)
 	sha512(str); // Returns sha512 hash from sting
 	md6(str[, length]); // Returns md6 hash from sting, second parametr is optional
 	md5_file(path[, callback]); // Returns md5 hash from file callback is optional and works async
+	hmac_sha1(str, key) // Returns hmac sha1 hash with an key
+	hmac_md5(str, key) // Returns hmac md5 hash with an key
 	
 ## Usage:
 	var hashlib = require('hashlib');
