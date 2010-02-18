@@ -41,11 +41,21 @@ if (hashlib.md5_file('./test.file')=='bc8aeda5b02f054117bd9979908787dc')
 	sys.puts('test 9 PASSED');
 else
 	sys.puts('test 9 FAILS');
+
 hashlib.md5_file('./test.file',function(value) {
   if (value=='bc8aeda5b02f054117bd9979908787dc')
     sys.puts('test 10 PASSED');
   else
     sys.puts('test 10 FAILS');
+// No "}" becouse it in the end
+if (hashlib.hmac_sha1('what do ya want for nothing?', 'Jefe')=='effcdf6ae5eb2fa2d27416d5f184df9c259a7c79')
+	sys.puts('test 11 PASSED');
+else
+	sys.puts('test 11 FAILS'); 
+if (hashlib.hmac_md5('what do ya want for nothing?', 'Jefe')=='750c783e6ab0b503eaa86e310a5db738')
+	sys.puts('test 12 PASSED');
+else
+	sys.puts('test 12 FAILS'); 
 
 // End of tests
 

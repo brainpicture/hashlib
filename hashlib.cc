@@ -148,6 +148,64 @@ hmac_sha1(const Arguments& args)
 	return String::New((char*)hexdigest,40);
 }
 
+Handle<Value>
+hmac_md5(const Arguments& args)
+{
+	HandleScope scope;
+ 
+	String::Utf8Value data(args[0]->ToString());
+	String::Utf8Value key_input(args[1]->ToString());
+ 
+	unsigned char digest[16];
+	unsigned char hexdigest[32];
+	unsigned int i;
+ 
+	const void *key = (unsigned char*) *key_input;
+	size_t keylen   =  key_input.length();
+ 
+	char ipad[64], opad[64];
+ 
+	if(keylen > 64)
+	{
+		char optkeybuf[20];
+		MD5_CTX keyhash;
+		
+		MD5Init(&keyhash);
+		MD5Update(&keyhash, (unsigned char*) key, keylen);
+		MD5Final((unsigned char*) optkeybuf, &keyhash);
+		
+		keylen = 20;
+		key = optkeybuf;
+	}
+ 
+	memcpy(ipad, key, keylen);
+	memcpy(opad, key, keylen);
+	memset(ipad+keylen, 0, 64 - keylen);
+	memset(opad+keylen, 0, 64 - keylen);
+ 
+	for (i = 0; i < 64; i++) 
+	{
+		ipad[i] ^= 0x36;
+		opad[i] ^= 0x5c;
+	}
+	
+	MD5_CTX context;
+	
+	MD5Init(&context);
+	MD5Update(&context, (unsigned char*) ipad, 64);
+	MD5Update(&context, (unsigned char*) *data, data.length());
+	MD5Final(digest, &context);
+	
+	MD5Init(&context);
+	MD5Update(&context, (unsigned char*) opad, 64);
+	MD5Update(&context, digest, 16);
+	MD5Final(digest, &context);
+ 
+	make_digest_ex(hexdigest, digest, 16);
+	return String::New((char*)hexdigest,32);
+}
+
+
 
 Handle<Value>
 sha256(const Arguments& args)
@@ -368,6 +426,7 @@ extern "C" void init (Handle<Object> target)
   target->Set(String::New("sha"), FunctionTemplate::New(sha)->GetFunction());
   target->Set(String::New("sha1"), FunctionTemplate::New(sha1)->GetFunction());
   target->Set(String::New("hmac_sha1"), FunctionTemplate::New(hmac_sha1)->GetFunction());
+  target->Set(String::New("hmac_md5"), FunctionTemplate::New(hmac_md5)->GetFunction());
   target->Set(String::New("sha256"), FunctionTemplate::New(sha256)->GetFunction());
   target->Set(String::New("sha512"), FunctionTemplate::New(sha512)->GetFunction());
   
