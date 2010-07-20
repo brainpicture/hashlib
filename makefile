@@ -1,8 +1,8 @@
 all:
-	node-waf configure build
+	node-waf configure build && mkdir -p ~/.node_libraries && cp ./build/default/hashlib.node ~/.node_libraries/hashlib.node
 tests:
 	node ./test.js
 install:
-	cp ./build/default/hashlib.node /usr/local/lib/node/libraries/hashlib.node
+	mkdir -p ~/.node_libraries && cp ./build/default/hashlib.node ~/.node_libraries/hashlib.node
 clean:
 	rm -rf ./build

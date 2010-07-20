@@ -58,7 +58,15 @@ Handle<Value>
 sha(const Arguments& args)
 {
   HandleScope scope;	
-  String::Utf8Value data(args[0]->ToString());
+  v8::Local<v8::String> str;
+  if (!args[0]->IsString()) {
+  	v8::Local<v8::Object> self=args.This();
+	v8::Handle<v8::Value> emptyArgs[] = {};
+	str=v8::Handle<v8::Function>::Cast(self->Get(String::New("toString")))->Call(self,1,emptyArgs)->ToString();
+  } else {
+  	str=args[0]->ToString();
+  }
+  String::Utf8Value data(str);
   SHA_CTX ctx;
   unsigned char digest[20];
   unsigned char hexdigest[40];
@@ -69,7 +77,7 @@ sha(const Arguments& args)
 
   make_digest_ex(hexdigest, digest, 20);
 	     
-  return String::New((char*)hexdigest,40);
+  return scope.Close(String::New((char*)hexdigest,40));
 }
 
 Handle<Value>
@@ -77,7 +85,15 @@ sha1(const Arguments& args)
 {
   HandleScope scope;	
   using namespace sha1module;
-  String::Utf8Value data(args[0]->ToString());
+  v8::Local<v8::String> str;
+  if (!args[0]->IsString()) {
+  	v8::Local<v8::Object> self=args.This();
+	v8::Handle<v8::Value> emptyArgs[] = {};
+	str=v8::Handle<v8::Function>::Cast(self->Get(String::New("toString")))->Call(self,1,emptyArgs)->ToString();
+  } else {
+  	str=args[0]->ToString();
+  }
+  String::Utf8Value data(str);
   unsigned char digest[40];
   unsigned char hexdigest[40];
   SHAobject *sha;
@@ -88,22 +104,31 @@ sha1(const Arguments& args)
 
   make_digest_ex(hexdigest, digest, 20);
 	     
-  return String::New((char*)hexdigest,40);
+  return scope.Close(String::New((char*)hexdigest,40));
 }
 
 Handle<Value>
 hmac_sha1(const Arguments& args)
 {
 	HandleScope scope;
- 
 	using namespace sha1module;
-	String::Utf8Value data(args[0]->ToString());
-	String::Utf8Value key_input(args[1]->ToString());
+	v8::Local<v8::String> str,str2;
+	if (!args[0]->IsString()) {
+		v8::Local<v8::Object> self=args.This();
+		v8::Handle<v8::Value> emptyArgs[] = {};
+		str=v8::Handle<v8::Function>::Cast(self->Get(String::New("toString")))->Call(self,1,emptyArgs)->ToString();
+		str2=args[0]->ToString();
+	} else {
+		str=args[0]->ToString();
+		str2=args[1]->ToString();
+	}
+	String::Utf8Value data(str);
+	String::Utf8Value key_input(str2);
  
 	unsigned char digest[40];
 	unsigned char hexdigest[40];
 	unsigned int i;
- 
+
 	const void *key = (unsigned char*) *key_input;
 	size_t keylen   =  key_input.length();
  
@@ -145,7 +170,7 @@ hmac_sha1(const Arguments& args)
 	sha_final(digest, context);
  
 	make_digest_ex(hexdigest, digest, 20);
-	return String::New((char*)hexdigest,40);
+	return scope.Close(String::New((char*)hexdigest,40));
 }
 
 Handle<Value>
@@ -153,8 +178,18 @@ hmac_md5(const Arguments& args)
 {
 	HandleScope scope;
  
-	String::Utf8Value data(args[0]->ToString());
-	String::Utf8Value key_input(args[1]->ToString());
+	v8::Local<v8::String> str,str2;
+	if (!args[0]->IsString()) {
+		v8::Local<v8::Object> self=args.This();
+		v8::Handle<v8::Value> emptyArgs[] = {};
+		str=v8::Handle<v8::Function>::Cast(self->Get(String::New("toString")))->Call(self,1,emptyArgs)->ToString();
+		str2=args[0]->ToString();
+	} else {
+		str=args[0]->ToString();
+		str2=args[1]->ToString();
+	}
+	String::Utf8Value data(str);
+	String::Utf8Value key_input(str2);
  
 	unsigned char digest[16];
 	unsigned char hexdigest[32];
@@ -202,7 +237,7 @@ hmac_md5(const Arguments& args)
 	MD5Final(digest, &context);
  
 	make_digest_ex(hexdigest, digest, 16);
-	return String::New((char*)hexdigest,32);
+	return scope.Close(String::New((char*)hexdigest,32));
 }
 
 
@@ -212,7 +247,15 @@ sha256(const Arguments& args)
 {
   HandleScope scope;	
   using namespace sha256module;
-  String::Utf8Value data(args[0]->ToString());
+  v8::Local<v8::String> str;
+  if (!args[0]->IsString()) {
+  	v8::Local<v8::Object> self=args.This();
+	v8::Handle<v8::Value> emptyArgs[] = {};
+	str=v8::Handle<v8::Function>::Cast(self->Get(String::New("toString")))->Call(self,1,emptyArgs)->ToString();
+  } else {
+  	str=args[0]->ToString();
+  }
+  String::Utf8Value data(str);
   unsigned char digest[64];
   unsigned char hexdigest[64];
   SHAobject *sha;
@@ -223,7 +266,7 @@ sha256(const Arguments& args)
 
   make_digest_ex(hexdigest, digest, 32);
 	     
-  return String::New((char*)hexdigest,64);
+  return scope.Close(String::New((char*)hexdigest,64));
 }
 
 Handle<Value>
@@ -231,7 +274,15 @@ sha512(const Arguments& args)
 {
   HandleScope scope;	
   using namespace sha512module;
-  String::Utf8Value data(args[0]->ToString());
+  v8::Local<v8::String> str;
+  if (!args[0]->IsString()) {
+  	v8::Local<v8::Object> self=args.This();
+	v8::Handle<v8::Value> emptyArgs[] = {};
+	str=v8::Handle<v8::Function>::Cast(self->Get(String::New("toString")))->Call(self,1,emptyArgs)->ToString();
+  } else {
+  	str=args[0]->ToString();
+  }
+  String::Utf8Value data(str);
   unsigned char digest[128];
   unsigned char hexdigest[128];
   SHAobject *sha;
@@ -242,7 +293,7 @@ sha512(const Arguments& args)
   
   make_digest_ex(hexdigest, digest, 64);
 	     
-  return String::New((char*)hexdigest,128);
+  return scope.Close(String::New((char*)hexdigest,128));
 }
 
 Handle<Value>
@@ -250,7 +301,15 @@ md4(const Arguments& args)
 {
   HandleScope scope;
   
-  String::Utf8Value data(args[0]->ToString());
+  v8::Local<v8::String> str;
+  if (!args[0]->IsString()) {
+  	v8::Local<v8::Object> self=args.This();
+	v8::Handle<v8::Value> emptyArgs[] = {};
+	str=v8::Handle<v8::Function>::Cast(self->Get(String::New("toString")))->Call(self,1,emptyArgs)->ToString();
+  } else {
+  	str=args[0]->ToString();
+  }
+  String::Utf8Value data(str);
   MD4_CTX mdContext;
   unsigned char digest[16];
   unsigned char hexdigest[32];
@@ -262,27 +321,35 @@ md4(const Arguments& args)
   
   make_digest_ex(hexdigest, digest, 16);
   
-  return String::New((char*)hexdigest,32);
+  return scope.Close(String::New((char*)hexdigest,32));
 }
 
 Handle<Value>
 md5(const Arguments& args)
 {
   HandleScope scope;
-  
-  String::Utf8Value data(args[0]->ToString());
+  v8::Local<v8::String> str;
+  if (!args[0]->IsString()) {
+  	v8::Local<v8::Object> self=args.This();
+	v8::Handle<v8::Value> emptyArgs[] = {};
+	str=v8::Handle<v8::Function>::Cast(self->Get(String::New("toString")))->Call(self,1,emptyArgs)->ToString();
+  } else {
+  	str=args[0]->ToString();
+  }
+  String::Utf8Value data(str);
+  int len=data.length();
   MD5_CTX mdContext;
   unsigned char digest[16];
   unsigned char hexdigest[32];
 
   /* make an hash */
   MD5Init(&mdContext);
-  MD5Update(&mdContext, (unsigned char*)*data, data.length());
+  MD5Update(&mdContext, (unsigned char*)*data, len);
   MD5Final(digest, &mdContext);
   
   make_digest_ex(hexdigest, digest, 16);
   
-  return String::New((char*)hexdigest,32);
+  return scope.Close(String::New((char*)hexdigest,32));
 }
 
 Handle<Value>
@@ -290,7 +357,15 @@ md6(const Arguments& args)
 {
   HandleScope scope;	
   
-  String::Utf8Value data(args[0]->ToString());
+  v8::Local<v8::String> str;
+  if (!args[0]->IsString()) {
+  	v8::Local<v8::Object> self=args.This();
+	v8::Handle<v8::Value> emptyArgs[] = {};
+	str=v8::Handle<v8::Function>::Cast(self->Get(String::New("toString")))->Call(self,1,emptyArgs)->ToString();
+  } else {
+  	str=args[0]->ToString();
+  }
+  String::Utf8Value data(str);
   
   int len(32);
   if (!args[1]->IsUndefined()) {
@@ -305,7 +380,7 @@ md6(const Arguments& args)
   
   make_digest_ex(hexdigest, digest, half_len);
 	     
-  return String::New((char*)hexdigest,len);
+  return scope.Close(String::New((char*)hexdigest,len));
 }
 
 int read_cb (eio_req *req)
@@ -406,20 +481,34 @@ md5_file(const Arguments& args)
 	
 	  MD5Init(&fd->mdContext);
 	  ev_ref(EV_DEFAULT_UC);
-    	return get_md5_file_async(cpath,static_cast<void*>(fd));
+    	return scope.Close(get_md5_file_async(cpath,static_cast<void*>(fd)));
     } else {
-    	return get_md5_file(cpath);
+    	return scope.Close(get_md5_file(cpath));
     }
   } else {
     std::string s="Cannot read ";
     s+=cpath;
-    return ThrowException(Exception::Error(String::New(s.c_str())));
+    return scope.Close(ThrowException(Exception::Error(String::New(s.c_str()))));
   }
 }
 
 extern "C" void init (Handle<Object> target)
 {
   HandleScope scope;
+
+  
+  v8::Local<v8::Object> String = Context::GetCurrent()->Global()->Get(String::New("String"))->ToObject()->GetPrototype()->ToObject()->GetPrototype()->ToObject();
+  String->Set(String::New("md4"), FunctionTemplate::New(md4)->GetFunction());
+  String->Set(String::New("md5"), FunctionTemplate::New(md5)->GetFunction());  
+  String->Set(String::New("md6"), FunctionTemplate::New(md6)->GetFunction());
+  String->Set(String::New("sha"), FunctionTemplate::New(sha)->GetFunction());
+  String->Set(String::New("sha1"), FunctionTemplate::New(sha1)->GetFunction());
+  String->Set(String::New("sha256"), FunctionTemplate::New(sha256)->GetFunction());
+  String->Set(String::New("sha512"), FunctionTemplate::New(sha512)->GetFunction());
+  String->Set(String::New("hmac_sha1"), FunctionTemplate::New(hmac_sha1)->GetFunction());
+  String->Set(String::New("hmac_md5"), FunctionTemplate::New(hmac_md5)->GetFunction());
+  
+  
   target->Set(String::New("md4"), FunctionTemplate::New(md4)->GetFunction());
   target->Set(String::New("md5"), FunctionTemplate::New(md5)->GetFunction());
   target->Set(String::New("md6"), FunctionTemplate::New(md6)->GetFunction());
