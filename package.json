@@ -1,0 +1,11 @@
+{
+  "name": "hashlib",
+  "author": "Illarionov Oleg",
+  "description": "lib for node which makes hashes",
+  "version": "1.0.0",
+  "contributors": [ 
+    { "name": "Fedor Indutny", "email": "fedor.indutny@gmail.com" },
+  ],
+  "directories": { "lib": "./build/default" },
+  "engines": { "node": ">= 0.2.0" }
+}
