@@ -1,5 +1,5 @@
 all:
-	nodejs-waf configure build
+	node-waf configure build
 
 tests:
 	nodejs ./test.js
