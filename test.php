@@ -10,4 +10,5 @@ $m1=intval($m1[1].substr($m1[0],2,3));
 $m2=explode(' ',$m2);
 $m2=intval($m2[1].substr($m2[0],2,3));
 echo($m2-$m1);
+
 ?>

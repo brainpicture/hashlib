@@ -6,7 +6,7 @@
   "contributors": [ 
     { "name": "Fedor Indutny", "email": "fedor.indutny@gmail.com" },
     { "name": "Seth Fitzsimmons", "email": "seth@mojodna.net" },
-    { "name": "Wade Simmons", "email": "wade@wades.im" },
+    { "name": "Wade Simmons", "email": "wade@wades.im" }
   ],
   "directories": { "lib": "./build/default" },
   "engines": { "node": ">= 0.2.0" }
