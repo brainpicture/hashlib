@@ -10,7 +10,7 @@ def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("compiler_cc")
   conf.check_tool("node_addon")
-  #conf.env.append_value('CCFLAGS', ['-fstack-protector', '-O', '-g', '-march=native'])
+  conf.env.append_value('CPPFLAGS', ['-Du_int32_t=uint32_t', '-Du_int16_t=uint16_t'])
   conf.env.append_value('CCFLAGS', ['-O3'])
 
 def build(bld):
