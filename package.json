@@ -8,6 +8,7 @@
     { "name": "Seth Fitzsimmons", "email": "seth@mojodna.net" },
     { "name": "Wade Simmons", "email": "wade@wades.im" }
   ],
+  "main": "build/default/hashlib",
   "directories": { "lib": "./build/default" },
   "engines": { "node": ">= 0.2.0" }
 }
