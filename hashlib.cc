@@ -6,7 +6,10 @@
  * @autor Oleg Illarionov <oleg@emby.ru>
  * @version 1.0
  */
- 
+
+#include <iostream>
+#include <stdio.h>
+
 #include <v8.h>
 #include <ev.h>
 #include <eio.h>
@@ -25,9 +28,6 @@ extern "C" {
 #include "lib/md6/md6.h"
 #include "lib/md6/md6_compress.c"
 #include "lib/md6/md6_mode.c"
-
-#include <iostream>
-#include <stdio.h>
 
 class file_data {
   public:
