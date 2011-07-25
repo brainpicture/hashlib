@@ -2,7 +2,7 @@
   "name": "hashlib",
   "author": "Illarionov Oleg",
   "description": "lib for node which makes hashes",
-  "version": "1.1",
+  "version": "1.0.1",
   "contributors": [ 
     { "name": "Fedor Indutny", "email": "fedor.indutny@gmail.com" },
     { "name": "Seth Fitzsimmons", "email": "seth@mojodna.net" },
