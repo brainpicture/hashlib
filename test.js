@@ -1,6 +1,7 @@
 var hashlib = require("./build/default/hashlib");
 var sys = require("sys");
 var md5 = require("./test/md5");
+var assert = require("assert");
 
 process.chdir(__dirname);
 
@@ -40,6 +41,22 @@ if (hashlib.md5_file('./test.file')=='bc8aeda5b02f054117bd9979908787dc')
 	sys.puts('test 9 PASSED');
 else
 	sys.puts('test 9 FAILS');
+
+var COLL = [0x18, 0x00, 0x00, 0x00, 0x04, 0x30, 0x00, 0x10, 0x00, 0x00, 0x00, 0x10, 0x30, 0x00, 0x8e, 0x03, 0x00, 0x00, 0x08, 0x31, 0x00, 0x01, 0x00, 0x00];
+
+if (hashlib.sha256(new Buffer([18, 00, 00, 00, 04, 30, 00, 10, 00, 00, 00, 10, 30, 00, 0x8d, 03, 00, 00, 08, 31, 00, 01, 00, 00])) ===
+    hashlib.sha256(new Buffer([18, 00, 00, 00, 04, 30, 00, 10, 00, 00, 00, 10, 30, 00, 0x8e, 03, 00, 00, 08, 31, 00, 01, 00, 00])))
+    sys.puts('test binary fails')
+else
+    sys.puts('test binary pass')
+
+if (hashlib.sha256(new Buffer(COLL)) !==
+    '182edb820977e12de4de8b0ff835049d9b40ae8c700a3ab2f22bd44e22d85d9c'){
+    sys.puts('binary buffer 1 not equal. fail')
+    sys.puts(hashlib.sha256(new Buffer(COLL)))
+} else {
+    sys.puts('binary buffer 1 pass')
+}
 
 hashlib.md5_file('./test.file',function(value) {
   if (value=='bc8aeda5b02f054117bd9979908787dc')
