@@ -14,6 +14,7 @@
 #include <ev.h>
 #include <eio.h>
 #include <fcntl.h>
+#include <node_buffer.h>
 
 extern "C" {
 #include "sha.h"
@@ -54,17 +55,36 @@ make_digest_ex(unsigned char *md5str, unsigned char *digest, int len)
   md5str[len * 2] = '\0';
 }
 
+// extracts the data from POSition of arguments. Respects Buffers
+#define get_data(POS, DATA, LENGTH) \
+  String::Utf8Value mdata_##POS (args[POS]->ToString()); \
+  Local<Object> buffer_obj_##POS; \
+  if (node::Buffer::HasInstance(args[POS])) { \
+    Local<Object> buffer_obj_##POS = args[POS]->ToObject(); \
+    LENGTH = node::Buffer::Length(buffer_obj_##POS); \
+    DATA = (unsigned char *)node::Buffer::Data(buffer_obj_##POS); \
+  } else { \
+    LENGTH = (size_t)mdata_##POS.length(); \
+    DATA = (unsigned char *)*mdata_##POS; \
+  }
+
+
+
 Handle<Value>
 sha(const Arguments& args)
 {
-  HandleScope scope;	
-  String::Utf8Value data(args[0]->ToString());
+  HandleScope scope;
+
+  size_t length;
+  unsigned char *data;
+  get_data(0, data, length);
+
   SHA_CTX ctx;
   unsigned char digest[20];
   unsigned char hexdigest[40];
 
   SHA_Init(&ctx);
-  SHA_Update(&ctx, (unsigned char*)*data, data.length());
+  SHA_Update(&ctx, data, length);
   SHA_Final(digest, &ctx);
 
   make_digest_ex(hexdigest, digest, 20);
@@ -77,13 +97,17 @@ sha1(const Arguments& args)
 {
   HandleScope scope;	
   using namespace sha1module;
-  String::Utf8Value data(args[0]->ToString());
+
+  size_t length;
+  unsigned char *data;
+  get_data(0, data, length);
+
   unsigned char digest[40];
   unsigned char hexdigest[40];
   SHAobject *sha;
   sha=new SHAobject;
   sha_init(sha);
-  sha_update(sha, (unsigned char*) *data, data.length());
+  sha_update(sha, data, length);
   sha_final(digest, sha);
 
   make_digest_ex(hexdigest, digest, 20);
@@ -95,17 +119,18 @@ Handle<Value>
 hmac_sha1(const Arguments& args)
 {
 	HandleScope scope;
- 
-	using namespace sha1module;
-	String::Utf8Value data(args[0]->ToString());
-	String::Utf8Value key_input(args[1]->ToString());
- 
+ 	using namespace sha1module;
+
+	unsigned char *data, *key_input;
+	size_t data_length, keylen;
+	get_data(0, data, data_length);
+	get_data(1, key_input, keylen);
+
 	unsigned char digest[40];
 	unsigned char hexdigest[40];
 	unsigned int i;
  
-	const void *key = (unsigned char*) *key_input;
-	size_t keylen   =  key_input.length();
+	const void *key = key_input;
  
 	char ipad[64], opad[64];
  
@@ -115,7 +140,7 @@ hmac_sha1(const Arguments& args)
 		SHAobject *keyhash;
 		keyhash = new SHAobject;
 		sha_init(keyhash);
-		sha_update(keyhash, (unsigned char*) key, keylen);
+		sha_update(keyhash, key_input, keylen);
 		sha_final((unsigned char*) optkeybuf, keyhash);
 		keylen = 20;
 		key = optkeybuf;
@@ -136,7 +161,7 @@ hmac_sha1(const Arguments& args)
 	context = new SHAobject;
 	sha_init(context);
 	sha_update(context, (unsigned char*) ipad, 64);
-	sha_update(context, (unsigned char*)*data, data.length());
+	sha_update(context, data, data_length);
 	sha_final(digest, context);
  
 	sha_init(context);
@@ -153,15 +178,16 @@ hmac_md5(const Arguments& args)
 {
 	HandleScope scope;
  
-	String::Utf8Value data(args[0]->ToString());
-	String::Utf8Value key_input(args[1]->ToString());
- 
+	unsigned char *data, *key_input;
+	size_t data_length, keylen;
+	get_data(0, data, data_length);
+	get_data(1, key_input, keylen);
+
 	unsigned char digest[16];
 	unsigned char hexdigest[32];
 	unsigned int i;
  
-	const void *key = (unsigned char*) *key_input;
-	size_t keylen   =  key_input.length();
+	const void *key = (unsigned char*) key_input;
  
 	char ipad[64], opad[64];
  
@@ -193,7 +219,7 @@ hmac_md5(const Arguments& args)
 
 	MD5Init(&context);
 	MD5Update(&context, (unsigned char*) ipad, 64);
-	MD5Update(&context, (unsigned char*) *data, data.length());
+	MD5Update(&context, data, data_length);
 	MD5Final(digest, &context);
 
 	MD5Init(&context);
@@ -212,13 +238,17 @@ sha256(const Arguments& args)
 {
   HandleScope scope;	
   using namespace sha256module;
-  String::Utf8Value data(args[0]->ToString());
+
+  size_t length;
+  unsigned char *data;
+  get_data(0, data, length);
+
   unsigned char digest[64];
   unsigned char hexdigest[64];
   SHAobject *sha;
   sha=new SHAobject;
   sha_init(sha);
-  sha_update(sha, (unsigned char*) *data, data.length());
+  sha_update(sha, data, length);
   sha_final(digest, sha);
 
   make_digest_ex(hexdigest, digest, 32);
@@ -231,13 +261,17 @@ sha512(const Arguments& args)
 {
   HandleScope scope;	
   using namespace sha512module;
-  String::Utf8Value data(args[0]->ToString());
+
+  size_t length;
+  unsigned char *data;
+  get_data(0, data, length);
+
   unsigned char digest[128];
   unsigned char hexdigest[128];
   SHAobject *sha;
   sha=new SHAobject;
   sha512_init(sha);
-  sha512_update(sha, (unsigned char*) *data, data.length());
+  sha512_update(sha, data, length);
   sha512_final(digest, sha);
   
   make_digest_ex(hexdigest, digest, 64);
@@ -249,15 +283,18 @@ Handle<Value>
 md4(const Arguments& args)
 {
   HandleScope scope;
-  
-  String::Utf8Value data(args[0]->ToString());
+
+  size_t length;
+  unsigned char *data;
+  get_data(0, data, length);
+
   MD4_CTX mdContext;
   unsigned char digest[16];
   unsigned char hexdigest[32];
 
   /* make an hash */
   MD4Init(&mdContext);
-  MD4Update(&mdContext, (unsigned char*)*data, data.length());
+  MD4Update(&mdContext, data, length);
   MD4Final(digest, &mdContext);
   
   make_digest_ex(hexdigest, digest, 16);
@@ -270,14 +307,17 @@ md5(const Arguments& args)
 {
   HandleScope scope;
   
-  String::Utf8Value data(args[0]->ToString());
+  size_t length;
+  unsigned char *data;
+  get_data(0, data, length);
+
   MD5_CTX mdContext;
   unsigned char digest[16];
   unsigned char hexdigest[32];
 
   /* make an hash */
   MD5Init(&mdContext);
-  MD5Update(&mdContext, (unsigned char*)*data, data.length());
+  MD5Update(&mdContext, data, length);
   MD5Final(digest, &mdContext);
   
   make_digest_ex(hexdigest, digest, 16);
@@ -290,7 +330,9 @@ md6(const Arguments& args)
 {
   HandleScope scope;	
   
-  String::Utf8Value data(args[0]->ToString());
+  size_t length;
+  unsigned char *data;
+  get_data(0, data, length);
   
   int len(32);
   if (!args[1]->IsUndefined()) {
@@ -298,7 +340,7 @@ md6(const Arguments& args)
   }
   unsigned char digest[len];
   unsigned char hexdigest[len];
-  md6_hash(len*8, (unsigned char*) *data, data.length(), digest);
+  md6_hash(len*8, data, length, digest);
 
   int half_len=len/2;
   if (len%2!=0) half_len++;
