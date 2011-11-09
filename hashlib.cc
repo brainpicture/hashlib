@@ -11,8 +11,7 @@
 #include <stdio.h>
 
 #include <v8.h>
-#include <ev.h>
-#include <eio.h>
+#include <node.h>
 #include <fcntl.h>
 #include <node_buffer.h>
 
