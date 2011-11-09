@@ -11,9 +11,9 @@
 
 2) execute `node-waf configure build`
 
-3) get module from `./build/default/hashlib.node`
+3) get module from `./build/Release/hashlib.node`
 
-You should use `var hashlib = require("./build/default/hashlib");` (way to module)
+You should use `var hashlib = require("./build/Release/hashlib");` (way to module)
 
 ### way 2 (works if node are installed in default path)
 1) go to the directory with hashlib library

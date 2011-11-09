@@ -1,4 +1,4 @@
-var hashlib = require("./build/default/hashlib");
+var hashlib = require("./build/Release/hashlib");
 var sys = require("sys");
 var md5 = require("./test/md5");
 var assert = require("assert");
