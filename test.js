@@ -37,34 +37,30 @@ if (hashlib.sha('test')=='f8d3b312442a67706057aeb45b983221afb4f035')
 	console.log('test 8 PASSED');
 else
 	console.log('test 8 FAILS');
-if (hashlib.md5_file('./test.file')=='bc8aeda5b02f054117bd9979908787dc')
-	console.log('test 9 PASSED');
-else
-	console.log('test 9 FAILS');
 
 var COLL = [0x18, 0x00, 0x00, 0x00, 0x04, 0x30, 0x00, 0x10, 0x00, 0x00, 0x00, 0x10, 0x30, 0x00, 0x8e, 0x03, 0x00, 0x00, 0x08, 0x31, 0x00, 0x01, 0x00, 0x00];
 
 if (hashlib.sha256(new Buffer([18, 00, 00, 00, 04, 30, 00, 10, 00, 00, 00, 10, 30, 00, 0x8d, 03, 00, 00, 08, 31, 00, 01, 00, 00])) ===
     hashlib.sha256(new Buffer([18, 00, 00, 00, 04, 30, 00, 10, 00, 00, 00, 10, 30, 00, 0x8e, 03, 00, 00, 08, 31, 00, 01, 00, 00])))
-  console.log('test 10 FAILS');
+  console.log('test 9 FAILS');
 else
-  console.log('test 10 PASSED');
+  console.log('test 9 PASSED');
 
 if (hashlib.sha256(new Buffer(COLL)) !==
     '182edb820977e12de4de8b0ff835049d9b40ae8c700a3ab2f22bd44e22d85d9c'){
-  console.log('test 11 FAILS');
+  console.log('test 10 FAILS');
 } else {
-  console.log('test 11 PASSED');
+  console.log('test 10 PASSED');
 }
 
 if (hashlib.hmac_sha1('what do ya want for nothing?', 'Jefe')=='effcdf6ae5eb2fa2d27416d5f184df9c259a7c79')
-	console.log('test 13 PASSED');
+	console.log('test 11 PASSED');
 else
-	console.log('test 13 FAILS');
+	console.log('test 11 FAILS');
 if (hashlib.hmac_md5('what do ya want for nothing?', 'Jefe')=='750c783e6ab0b503eaa86e310a5db738')
-	console.log('test 14 PASSED');
+	console.log('test 12 PASSED');
 else
-	console.log('test 14 FAILS');
+	console.log('test 12 FAILS');
 
 // End of tests
 
