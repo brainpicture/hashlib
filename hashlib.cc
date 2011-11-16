@@ -174,7 +174,6 @@ Handle<Value>
 hmac_md5(const Arguments& args)
 {
 	HandleScope scope;
-
 	unsigned char *data, *key_input;
 	size_t data_length, keylen;
 	get_data(0, data, data_length);
@@ -183,7 +182,6 @@ hmac_md5(const Arguments& args)
 	unsigned char digest[16];
 	unsigned char hexdigest[32];
 	unsigned int i;
-
 	const void *key = (unsigned char*) key_input;
 
 	char ipad[64], opad[64];
@@ -303,7 +301,6 @@ Handle<Value>
 md5(const Arguments& args)
 {
   HandleScope scope;
-
   size_t length;
   unsigned char *data;
   get_data(0, data, length);

@@ -57,12 +57,6 @@ if (hashlib.sha256(new Buffer(COLL)) !==
   console.log('test 11 PASSED');
 }
 
-hashlib.md5_file('./test.file', function(value) {
-  if (value=='bc8aeda5b02f054117bd9979908787dc')
-    console.log('test 12 PASSED');
-  else
-    console.log('test 12 FAILS');
-// No "}" becouse it in the end
 if (hashlib.hmac_sha1('what do ya want for nothing?', 'Jefe')=='effcdf6ae5eb2fa2d27416d5f184df9c259a7c79')
 	console.log('test 13 PASSED');
 else
@@ -155,5 +149,3 @@ for(i=0;i<100000;i++) {
 var m2=new Date().getTime();
 var c=m2-m1;
 console.log('C++ sha512 result is: '+(c));
-
-});
