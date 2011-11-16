@@ -9,6 +9,6 @@
     { "name": "Wade Simmons", "email": "wade@wades.im" }
   ],
   "main": "build/default/hashlib",
-  "directories": { "lib": "./build/default" },
-  "engines": { "node": ">= 0.2.0" }
+  "directories": { "lib": "./build/Release" },
+  "engines": { "node": ">= 0.5.5" }
 }
