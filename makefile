@@ -1,16 +1,13 @@
-all:
+all: waf install
+
+waf:
 	node-waf configure build
 
-tests:
-	nodejs ./test.js
-
 install:
-	@mkdir -p ~/.node_libraries && cp ./build/default/hashlib.node ~/.node_libraries/hashlib.node
-
-all: build install
+	@mkdir -p ~/.node_modules && cp ./build/Release/hashlib.node ~/.node_modules/hashlib.node
 
 tests:
 	@node ./test.js
-  
+
 clean:
 	@rm -rf ./build
