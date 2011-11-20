@@ -12,6 +12,8 @@ def configure(conf):
   conf.check_tool("node_addon")
   conf.env.append_value('CPPFLAGS', ['-Du_int32_t=uint32_t', '-Du_int16_t=uint16_t'])
   conf.env.append_value('CCFLAGS', ['-O3'])
+  conf.env.set_variant('Release') 
+
 
 def build(bld):
   libhash = bld.new_task_gen("cc", "shlib")
