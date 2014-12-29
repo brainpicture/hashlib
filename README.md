@@ -40,7 +40,7 @@ You should use `var hashlib = require("hashlib");` (from any path)
 	var hashlib = require('hashlib');
 	hashlib.md5('text');
 	
-## Speed testing
+## Speed testring
 To run speed test on your computer run test.js, here is my:
 	C++ md5 result is: 220
 	JS md5 result is: 5660
